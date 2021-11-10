@@ -63,12 +63,8 @@ db.sequelize.sync({ force: false }).then(() => {
     await console.log(
       `\n(||||||||| | | -------- Server running on port ${port} -------- | | |||||||||)`
     );
-    console.log(
-      (message =
-        process.env.NODE_ENV === "dev"
-          ? "\nDevelopment Mode."
-          : "\nProduction Mode.")
-    );
+    let message = process.env.NODE_ENV === "dev" ? "\nDevelopment Mode." : "\nProduction Mode."
+    console.log(message);
     //Informações sobre a CPU, ARQUITETURA, TOTAL DE MEMÓRIA RAM DISPONÍVEL NO SISTEMA E SEU USO.
     console.log("\nCPUS: ", os.cpus());
     console.log("\nArquitetura do processador: " + process.arch);
@@ -82,12 +78,11 @@ db.sequelize.sync({ force: false }).then(() => {
     console.log("Memória ram livre: " + Math.round(os.freemem()) + " B");
 
     //Listando disco tanto do windows quanto do linux
+    var disc = "C*";
     if (process.platform == "linux") {
       var disc = "/";
-    } else {
-      var disc = "C*";
-    }
-
+    } 
+    
     //Verificando disco (espaço total... livre e status)
     diskspace.check(disc, function (err, result) {
       console.log("\nTamanho total do disco: " + result.total + " B");
