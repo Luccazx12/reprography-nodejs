@@ -14,7 +14,7 @@
  <img src="https://img.shields.io/github/last-commit/luccazx12/reprography-nodejs">
  </div>
 
-<a href="https://github.com/Luccazx12/reprography-nodejs/blob/master/README-en.md">English Version</a>
+<a href="https://github.com/Squad-Back-End/reprography-nodejs/blob/master/README-en.md">English Version</a>
 
 
 ## Apresentação
@@ -33,7 +33,7 @@ Esta aplicação foi requerida pela coordenadora da escola Senai Suiço-Brasilei
  <th><h3>Linguagem</h3></th>
  <th><h3>Banco de dados</h3></th>
  <th><h3>Framework</h3></th>
- <th><h3>Editor de texto</h3></th>
+ <th><h3>Editor de código</h3></th>
  <th><h3>Documentação</h3></th>
   <tr>
     <td valign="top" align="center">
