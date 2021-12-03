@@ -1,172 +1,118 @@
-//Service dos serviços
-const service = require("../services/servico.service");
+// Service dos serviços
+const service = require('../services/servico.service');
 
-//Constants
-const constants = require("../constants/service.constant");
-const status = require("../constants/status.constant");
-
-//Variáveis para respostas
-var typeMsg = "";
-var okMessage = "";
+// Mensagens padrões para o que será retornado para o front-end
+const caMessage = 'Serviço Capa&Acabamento';
+const ctMessage = 'Serviço Copia&Tamanho';
+const typeError = 'Insira um tipo de serviço existente.';
 
 //Verificando usuário como admin
-const { authJwt } = require("../middlewares");
+const { authJwt } = require('../middlewares');
 
 module.exports = {
+  servicosGet: async (req, res) => {
+    const { enabled } = req.params;
 
-    servicosGet: async (req, res) => {
-        const { enabled } = req.params;
+    const servicos = await service.findAllServicos(enabled);
+    return res.json(servicos);
+  },
 
-        try {
-            const servicos = await service.findAllServicos(enabled);
+  servicosGetByPk: async (req, res) => {
+    const { id, type } = req.params;
 
-            if (servicos.servicosCT.length < 1 && servicos.servicosCA.length < 1) {
-                return res.json({ status: status.error, message: "Sem registros..." });
-            }
+    const servicos = await service.findServicoByPk({ type, id });
 
-            //Se a solicitação for de serviços habilitados (exibidos no formulário 
-            // de pedido), então será retornado sem problemas o array para o usuário.
-            if (enabled === "1") {
-                return res.status(200).json(servicos);
-            }
-            // Agora se o usuário estiver solicitando os serviços desabilitados,
-            // então será verificado se ele tem permissão para vizualizar isso
-            // (ROLE ADMIN).
-            else {
-                // Enviando a array de serviços dentro da requisição
-                req.array = servicos;
+    return res.json(servicos);
+  },
 
-                // Executando middleware para verificar se o usuário é admin ou não
-                // se ele for admin, no propŕio middleware será retornado o array,
-                // se não, ele irá responder que é necessário o ROLE ADMIN.
-                await authJwt.isAdmin(req, res);
-            }
-        }
-        catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        };
-    },
+  servicosPost: async (req, res) => {
+    const { descricao, quantidade, valor_unitario } = req.body;
+    const { type } = req.params;
 
-    servicosGetByPk: async (req, res) => {
-        const { id, type } = req.params;
+    if (quantidade !== '' || quantidade !== null) {
+      await service.createServico({
+        type,
+        params: { descricao, quantidade, valor_unitario },
+      });
+      let status = 'ok';
+      const okMessage = 'criado com sucesso!';
+      const errorMessage = 'inválido!';
 
-        try {
-            const servicos = await service.findServicoByPk({ type: type, id: id });
-
-            if (servicos === false) {
-                return res.json({ status: status.error, message: constants.invalidParameter });
-            }
-            else if (servicos === null) {
-                return res.json({ status: status.error, message: constants.notFound });
-            }
-            else {
-                return res.status(200).json(servicos);
-            }
-        }
-        catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        };
-    },
-
-    servicosPost: async (req, res) => {
-        const { descricao, quantidade, valor_unitario } = req.body;
-        const { type } = req.params;
-
-        try {
-            if (quantidade !== "" || quantidade !== null) {
-                const create = await service.createServico({ type: type, params: { descricao: descricao, quantidade: quantidade, valor_unitario: valor_unitario } });
-
-                if (create === false) {
-                    return res.json({ status: status.error, message: constants.invalidParameter });
-                }
-
-                okMessage = constants.successCreated;
-
-                if (type === "ca") {
-                    typeMsg = constants.caMessage;
-                }
-                else if (type === "ct") {
-                    typeMsg = constants.ctMessage;
-                }
-
-                const message = typeMsg + create.id_servico + okMessage;
-                return res.status(200).json({ status: status.ok, message: message });
-            }
-            else {
-                return res.json({ status: status.error, message: "Insira a quantidade do seu serviço!" });
-            }
-        }
-        catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        };
-    },
-
-    servicosPut: async (req, res) => {
-        const { id, type } = req.params;
-        const { quantidade, valor_unitario } = req.body;
-
-        try {
-            //aqui temos que passar o type e o id, para ele buscar pela service.
-            const servicos = await service.findServicoByPk({ type, id });
-
-            if (servicos === false) {
-                return res.json({ status: status.error, message: constants.invalidParameter });
-            }
-
-            else if (servicos === null) {
-                return res.json({ status: status.error, message: constants.notFound });
-            }
-
-            else {
-                //no update aqui temos que passar a array que recebemos do find...
-                await service.updateServico({ servico: servicos, param: { quantidade, valor_unitario } });
-                okMessage = constants.successAtt;
-
-                if (type === "ca") {
-                    typeMsg = constants.caMessage;
-                }
-                else if (type === "ct") {
-                    typeMsg = constants.ctMessage;
-                }
-
-                const message = typeMsg + id + okMessage;
-                return res.status(200).json({ status: status.ok, message: message });
-            }
-        }
-        catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        };
-    },
-
-    enableOrDisableServico: async (req, res) => {
-        const { type, id, enable } = req.params;
-
-        try {
-            const servicos = await service.findServicoByPk({ type, id });
-
-            if (servicos === false) {
-                return res.json({ status: status.error, message: constants.invalidParameter });
-            }
-            else if (servicos === null) {
-                return res.json({ status: status.error, message: constants.notFound });
-            }
-
-            await service.updateServico({ servico: servicos, param: { ativado: enable } });
-
-            okMessage = constants.successAtt;
-
-            if (type === "ca") {
-                typeMsg = constants.caMessage;
-            }
-            else if (type === "ct") {
-                typeMsg = constants.ctMessage;
-            }
-
-            const message = typeMsg + id + okMessage;
-            return res.status(200).json({ status: status.ok, message: message });
-        }
-        catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        };
+      if (type === 'ca') {
+        var message = `${caMessage} ${okMessage}`;
+      } else if (type === 'ct') {
+        message = `${ctMessage} ${okMessage}`;
+      } else {
+        status = 'error';
+        message = `${typeError} Serviço ${errorMessage}`;
+      }
+      return res.json({ status, message });
     }
+
+    return res.json({ error: 'Insira a quantidade do seu serviço!' });
+  },
+
+  servicosPut: async (req, res) => {
+    const { id, type } = req.params;
+    const { quantidade, valor_unitario } = req.body;
+
+    const servicos = await service.findServicoByPk({ type, id }); // aqui temos que passar o type e o id, para ele buscar pela service.
+
+    if (servicos === null) {
+      return res.json({ message: 'Não há nenhum serviço' });
+    }
+
+    await service
+      .updateServico({
+        servico: servicos,
+        param: { quantidade, valor_unitario },
+      })
+      .then((servico) => {
+        // no update aqui temos que passar a array que recebemos do find...
+        let status = 'ok';
+        const okMessage = 'atualizado com sucesso!';
+        const errorMessage = 'inválido!';
+
+        if (type === 'ca') {
+          var message = `${caMessage} ${okMessage}`;
+        } else if (type === 'ct') {
+          message = `${ctMessage} ${okMessage}`;
+        } else {
+          status = 'error';
+          message = `${typeError} Serviço ${errorMessage}`;
+        }
+        return res.json({ status, message });
+      });
+  },
+
+  enableOrDisableServico: async (req, res) => {
+    const { type, id, enable } = req.params;
+
+    const servicos = await service.findServicoByPk({ type, id });
+
+    if (servicos == null) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Serviço não encontrado!' });
+    }
+
+    await service.updateServico({
+      servico: servicos,
+      param: { ativado: enable },
+    });
+
+    let status = 'ok';
+    const okMessage = 'atualizado com sucesso!';
+    const errorMessage = 'inválido!';
+
+    if (type === 'ca') {
+      var message = `Status do ${caMessage} ${okMessage}`;
+    } else if (type === 'ct') {
+      message = `Status do ${ctMessage} ${okMessage}`;
+    } else {
+      status = 'error';
+      message = `${typeError} Serviço ${errorMessage}`;
+    }
+    return res.json({ status, message });
+  },
 };

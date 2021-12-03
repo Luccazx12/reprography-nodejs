@@ -1,4 +1,10 @@
-const avaliacaoEmail = ({ id, titulo_pedido, nif, avaliacao_obs, avaliacao_pedido }) => `
+const avaliacaoEmail = ({
+  id,
+  titulo_pedido,
+  nif,
+  avaliacao_obs,
+  avaliacao_pedido,
+}) => `
 <!doctype html>
 <html>
 
@@ -446,7 +452,7 @@ const avaliacaoEmail = ({ id, titulo_pedido, nif, avaliacao_obs, avaliacao_pedid
             </tr>
             <tr>
                 <td class="content-block powered-by">
-                    Telefone: (11) 5642-3400 | E-mail: secretaria115@sp.senai.br</a>.
+                    Telefone: (11) 5642-3400 | E-mail:secretaria115@sp.senai.br</a>.
                 </td>
             </tr>
         </table>
@@ -461,6 +467,6 @@ const avaliacaoEmail = ({ id, titulo_pedido, nif, avaliacao_obs, avaliacao_pedid
 </body>
 
 </html>
-`
+`;
 
 module.exports = avaliacaoEmail;

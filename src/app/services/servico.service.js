@@ -1,85 +1,86 @@
-//Biblioteca do sequelize 
-const Sequelize = require("sequelize");
-//Operadores do sequelize
-const Op = Sequelize.Op;
+// Biblioteca do sequelize
+const Sequelize = require('sequelize');
+// Operadores do sequelize
+const { Op } = Sequelize;
 
-//Inicializando as models e as recebendo
-const { initModels } = require("../models/init-models");
-var { servicoCapaAcabamento, servicoCopiaTamanho } = initModels(sequelize);
+// Inicializando as models e as recebendo
+const { initModels } = require('../models/init-models');
 
-//Validators
-const validators = require("../validators/servico.validator");
+const { servicoCapaAcabamento, servicoCopiaTamanho } = initModels(sequelize);
 
 module.exports = {
+  findAllServicos: async (enabled) => {
+    const servicoCA = await servicoCapaAcabamento.findAll({
+      where: {
+        ativado: enabled,
+      },
+    });
+    const servicoCT = await servicoCopiaTamanho.findAll({
+      where: {
+        ativado: enabled,
+      },
+    });
 
-    findAllServicos: async (enabled) => {
-        const servicoCA = await servicoCapaAcabamento.findAll({
-            where: {
-                ativado: enabled
-            }
-        });
-        const servicoCT = await servicoCopiaTamanho.findAll({
-            where: {
-                ativado: enabled
-            }
-        });
+    const servicos = { servicosCA: servicoCA, servicosCT: servicoCT };
 
-        const servicos = { "servicosCA": servicoCA, "servicosCT": servicoCT }
+    return servicos;
+  },
 
-        return servicos;
-    },
+  findServicoByPk: async ({ type, id }) => {
+    if (type === 'ct') {
+      var servico = servicoCopiaTamanho;
+    } else if (type === 'ca') {
+      var servico = servicoCapaAcabamento;
+    } else {
+      return;
+    }
 
-    findServicoByPk: async ({ type, id }) => {
+    const serv = await servico.findByPk(id);
 
-        const servico = await validators.isParameterValid(type);
+    return serv;
+  },
 
-        if (servico === false) {
-            return false;
-        }
+  createServico: async ({ type, params }) => {
+    if (type === 'ct') {
+      var servico = servicoCopiaTamanho;
+    } else if (type === 'ca') {
+      var servico = servicoCapaAcabamento;
+    } else {
+      return;
+    }
 
-        const serv = await servico.findByPk(id);
+    const serv = await servico.create(params);
 
-        return serv;
-    },
+    return serv;
+  },
 
-    createServico: async ({ type, params }) => {
+  serviceDecrement: async ({ type, number, param }) => {
+    if (type === 'ct') {
+      var servico = servicoCopiaTamanho;
+    } else if (type === 'ca') {
+      var servico = servicoCapaAcabamento;
+    } else {
+      return;
+    }
 
-        const servico = await validators.isParameterValid(type);
+    const serv = await servico.decrement(
+      { quantidade: +param },
+      {
+        where: {
+          id_servico: {
+            [Op.or]: [number],
+          },
+        },
+      }
+    );
 
-        if (servico === false) {
-            return false;
-        }
+    return serv;
+  },
 
-        const serv = await servico.create(params);
+  updateServico: async ({ servico, param }) => {
+    const updated = await servico.update(param);
+    return updated;
+  },
 
-        return serv;
-    },
-
-    serviceDecrement: async ({ type, number, param }) => {
-
-        const servico = await validators.isParameterValid(type);
-
-        if (servico === false) {
-            return false;
-        }
-
-        const serv = await servico.decrement({ quantidade: + param }, {
-            where: {
-                id_servico: {
-                    [Op.or]: [number]
-                }
-            }
-        });
-
-        return serv;
-    },
-
-    updateServico: async ({ servico, param }) => {
-        const updated = await servico.update(param);
-        return updated;
-    },
-
-    destroyServico: async () => {
-        return "Método não implementado!";
-    },
+  destroyServico: async () => {},
 };

@@ -1,5 +1,15 @@
-const pedidoEmail = ({ id, titulo_pedido, nif, centro_custos, curso, servicoCA, servicoCT,
-  num_paginas, num_copias, modo_envio, observacoes
+const pedidoEmail = ({
+  id,
+  titulo_pedido,
+  nif,
+  centro_custos,
+  curso,
+  servicoCA,
+  servicoCT,
+  num_paginas,
+  num_copias,
+  modo_envio,
+  observacoes,
 }) => ` 
   
 <!doctype html>
@@ -442,7 +452,7 @@ const pedidoEmail = ({ id, titulo_pedido, nif, centro_custos, curso, servicoCA, 
 
                     <p>Centro de Custos: ${centro_custos}</p>
                     <p>Curso: ${curso}</p>
-                    <p><strong>Observações:</strong> ${observacoes}</p>
+                    <p>Observações: ${observacoes}</p>
             </td>
         </tr>
         </tbody>
@@ -472,7 +482,7 @@ const pedidoEmail = ({ id, titulo_pedido, nif, centro_custos, curso, servicoCA, 
             </tr>
             <tr>
                 <td class="content-block powered-by">
-                    Telefone: (11) 5642-3400 | E-mail: secretaria115@sp.senai.br</a>.
+                    Telefone: (11) 5642-3400 | E-mail:secretaria115@sp.senai.br</a>.
                 </td>
             </tr>
         </table>
@@ -488,6 +498,6 @@ const pedidoEmail = ({ id, titulo_pedido, nif, centro_custos, curso, servicoCA, 
 
 </html>
   
-  `
+  `;
 
 module.exports = pedidoEmail;

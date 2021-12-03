@@ -1,498 +1,462 @@
-//Arquivo de config
-const config = require("../../config/").authConfig;
+// Arquivo de config
+const bcrypt = require('bcrypt');
+const { sign } = require('jsonwebtoken');
+const { unlink } = require('fs');
+const config = require('../.config/auth.config.json');
 
-//Services
+// Services
 
-//Service do usuário
-const service = require("../services/usuario.service");
-//Enviando descrição de constraints para o front-end/email
-const verifyConstraints = require("../services/verifyConstraints");
+// Service do usuário
+const service = require('../services/usuario.service');
+// Enviando descrição de constraints para o front-end/email
+const verifyConstraints = require('../services/verifyConstraints');
 
-//Validators
-const { adminArray } = require("../validators/usuario.validator");
+// Usado para criptografar as senhas no banco -> Nesse caso para comparar a senha
+// quando o usuário solicitar mudança de senha.
 
-//Constants
-const constants = require("../constants/usuario.constant");
-const status = require("../constants/status.constant");
+// Usado para enviar o token e informações do usuário pro front quando ele Logar
 
-//Usado para criptografar as senhas no banco -> Nesse caso para comparar a senha
-//quando o usuário solicitar mudança de senha.
-const bcrypt = require("bcrypt");
-
-//Usado para enviar o token e informações do usuário pro front quando ele Logar
-const { sign } = require("jsonwebtoken");
-
-//Funções do usuário
+// Funções do usuário
 module.exports = {
-    //Usuários
+  // Usuários
 
-    logar: async (req, res) => {
-        const { emailOrNif, senha } = req.body;
+  logar: async (req, res) => {
+    const { emailOrNif, senha } = req.body;
 
-        if (!emailOrNif || !senha) {
-            return res.status(400).json({
-                status: status.error,
-                message: "Requisição faltando campos de email ou senha!",
-            });
+    if (!emailOrNif || !senha) {
+      return res
+        .status(400)
+        .send('Requisição faltando campos de email ou senha!');
+    }
+
+    let user = await service.findOneByEmail(emailOrNif);
+
+    // Login com usuário ou NIF
+    if (user == null) {
+      user = await service.findUserbyPk(emailOrNif, { attributes: null });
+      if (!user) {
+        return res.json({
+          status: 'error',
+          message: 'E-mail/NIF ou Senha Inválidos!',
+        });
+      }
+      if (user.ativado === 0 && user.primeiro_acesso === 0) {
+        return res.json({
+          status: 'error',
+          message: 'Sua conta está desativada, contate um administrador!',
+        });
+      }
+    } else {
+      if (user.ativado === 0 && user.primeiro_acesso === 1) {
+        return res.json({
+          status: 'error',
+          message: 'Primeiro acesso requer NIF ao invés do e-mail.',
+        });
+      }
+
+      if (user.ativado === 0) {
+        return res.json({
+          status: 'error',
+          message: 'Sua conta está desativada, contate um administrador!',
+        });
+      }
+    }
+
+    await bcrypt
+      .compare(senha, user.senha)
+      .then((match) => {
+        if (!match) {
+          return res.json({
+            accessToken: null,
+            status: 'error',
+            message: 'E-mail/NIF ou Senha Inválidos!',
+          });
         }
 
-        try {
-            let user = await service.findOneByEmail(emailOrNif);
-
-            //Login com usuário ou NIF
-            if (user === null) {
-                user = await service.findUserbyPk(emailOrNif, { attributes: null });
-                if (!user) {
-                    return res.json({
-                        status: status.error,
-                        message: constants.invalidLogin,
-                    });
-                } else if (user.ativado === 0 && user.primeiro_acesso === 0) {
-                    return res.json({
-                        status: status.error,
-                        message: constants.accountDisabled,
-                    });
-                }
-            } else if (user.primeiro_acesso === 1) {
-                return res.json({
-                    status: status.error,
-                    message: "Primeiro acesso requer NIF ao invés do e-mail.",
-                })
-            }
-            if (user.ativado === 0) {
-                return res.json({
-                    status: status.error,
-                    message: constants.accountDisabled,
-                });
-            }
-
-            await bcrypt.compare(senha, user.senha).then((match) => {
-                if (!match) {
-                    return res.json({
-                        status: status.error,
-                        message: constants.invalidLogin,
-                    });
-                }
-
-                let authorities = [];
-                service.getRoles(user).then((roles) => {
-                    for (let i = 0; i < roles.length; i++) {
-                        authorities.push(
-                            roles[i].id + "_ROLE_" + roles[i].descricao.toUpperCase()
-                        );
-                    }
-
-                    const token = sign({
-                        nif: user.nif,
-                        nome: user.nome,
-                        email: user.email,
-                        imagem: user.imagem,
-                        roles: authorities,
-                    },
-                        config.jwt.secret,
-                        {
-                            expiresIn: 86400, // 24 hours
-                        }
-                    );
-
-                    return res.status(200).json({
-                        nif: user.nif,
-                        nome: user.nome,
-                        email: user.email,
-                        imagem: user.imagem,
-                        roles: authorities,
-                        accessToken: token,
-                        primeiro_acesso: user.primeiro_acesso,
-                    });
-                });
-            });
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
-
-    informacoesBasicas: async (req, res) => {
-        try {
-            let user = await service.findUserbyPk(req.user.nif, {
-                attributes: { exclude: ["senha"] },
-            });
-
-            const depto = await verifyConstraints({
-                departamento: user.dataValues.depto,
-            });
-
-            user.dataValues.depto = depto[0].descricao;
-
-            return res.status(200).json(user);
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
-
-    primeiroAcesso: async (req, res) => {
-        const { senha, confirmSenha } = req.body;
-
-        if (senha !== confirmSenha) {
-            return res.json({
-                status: status.error,
-                message: constants.valuesNotMatch,
-            });
-        }
-
-        try {
-            const user = await service.findUserbyPk(req.user.nif, {
-                attributes: { exclude: ["senha"] },
-            });
-
-            if (user.primeiro_acesso === 0) {
-                return res.json({
-                    status: status.error,
-                    message: "Esse não é seu primeiro acesso!",
-                });
-            }
-
-            await bcrypt.hash(
-                confirmSenha,
-                config.jwt.saltRounds,
-                async function (err, hash) {
-                    if (err) throw err;
-                    await service.updateUser({
-                        user,
-                        param: { senha: hash, primeiro_acesso: 0, ativado: 1 },
-                    });
-
-                    return res.status(200).json({
-                        status: status.ok,
-                        message: constants.attPassword
-                    });
-                }
+        const authorities = [];
+        service.getRoles(user).then((roles) => {
+          for (let i = 0; i < roles.length; i++) {
+            authorities.push(
+              `${roles[i].id}_ROLE_${roles[i].descricao.toUpperCase()}`
             );
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+          }
 
-    //Altera
-    alterarMeuUsuario: async (req, res) => {
-        const { nome, telefone, email } = req.body;
-
-        try {
-            const user = await service.findUserbyPk(req.user.nif, {
-                attributes: { exclude: ["senha"] },
-            });
-
-            let imagem = user.imagem;
-
-            if (req.file) {
-                imagem = req.file.path;
+          const token = sign(
+            {
+              nif: user.nif,
+              nome: user.nome,
+              email: user.email,
+              imagem: user.imagem,
+              roles: authorities,
+            },
+            config.jwt.secret,
+            {
+              expiresIn: 86400, // 24 hours
             }
+          );
 
-            await service.updateUser({
-                user,
-                param: { nome, telefone, email, imagem },
-                file: req.file,
-            });
+          return res.status(200).json({
+            nif: user.nif,
+            nome: user.nome,
+            email: user.email,
+            imagem: user.imagem,
+            roles: authorities,
+            accessToken: token,
+            primeiro_acesso: user.primeiro_acesso,
+          });
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({ status: 'error', message: err.message });
+      });
+  },
 
-            return res.status(200).json({
-                status: status.ok,
-                message: `Sua conta foi atualizada com sucesso!!`,
-            });
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+  informacoesBasicas: async (req, res) => {
+    const user = await service.findUserbyPk(req.user.nif, {
+      attributes: { exclude: ['senha'] },
+    });
 
-    alterarSenha: async (req, res) => {
-        const { senhaAntiga, senhaNova, confirmSenhaNova } = req.body;
+    const depto = await verifyConstraints({
+      departamento: user.dataValues.depto,
+    });
 
-        if (senhaNova !== confirmSenhaNova) {
+    user.dataValues.depto = depto[0].descricao;
+
+    return res.status(200).json(user);
+  },
+
+  primeiroAcesso: async (req, res) => {
+    const { senha, confirmSenha } = req.body;
+
+    if (senha !== confirmSenha) {
+      return res.json({
+        status: 'error',
+        message: 'Os campos Nova senha e Confirmar senha não coincidem.',
+      });
+    }
+
+    const user = await service.findUserbyPk(req.user.nif, { attributes: null });
+
+    if (user.primeiro_acesso == 0) {
+      return res.json({
+        status: 'error',
+        message: 'Esse não é seu primeiro acesso!',
+      });
+    }
+
+    await bcrypt.hash(
+      confirmSenha,
+      config.jwt.saltRounds,
+      async (err, hash) => {
+        if (err) throw err;
+        await service.updateUser({
+          user,
+          param: { senha: hash, primeiro_acesso: 0, ativado: 1 },
+        });
+
+        return res.json({
+          status: 'ok',
+          message: 'Senha atualizada com sucesso!',
+        });
+      }
+    );
+  },
+
+  // Altera
+  alterarMeuUsuario: async (req, res) => {
+    const user = await service.findUserbyPk(req.user.nif, { attributes: null });
+
+    let { nome, telefone, email, image } = req.body;
+
+    if (req.file) {
+      if (user.imagem !== config.adminAccount.defaultImage) {
+        await unlink(user.imagem, (err) => {
+          if (err) throw err;
+          console.log(`successfully deleted ${user.imagem}`);
+        });
+      }
+      image = req.file.path;
+    }
+
+    await service.updateUser({
+      user,
+      param: {
+        nome,
+        telefone,
+        email,
+        imagem: image,
+      },
+    });
+
+    return res.json({
+      status: 'ok',
+      message: 'Sua conta foi atualizada com sucesso!!',
+    });
+  },
+
+  alterarSenha: async (req, res) => {
+    const { senhaAntiga, senhaNova, confirmSenhaNova } = req.body;
+
+    if (senhaNova !== confirmSenhaNova) {
+      return res.json({
+        status: 'error',
+        message: 'Os campos Nova senha e Confirmar senha não coincidem.',
+      });
+    }
+
+    await service
+      .findUserbyPk(req.user.nif, { attributes: null })
+      .then((user) => {
+        bcrypt.compare(senhaAntiga, user.senha).then((match) => {
+          if (!match) {
             return res.json({
-                status: status.error,
-                message: constants.valuesNotMatch,
+              status: 'error',
+              message: 'A senha inserida no campo Senha antiga está incorreta.',
             });
-        }
+          }
 
-        try {
-            const user = await service.findUserbyPk(req.user.nif, {
-                attributes: null,
-            });
-
-            bcrypt.compare(senhaAntiga, user.senha).then((match) => {
-                if (!match)
-                    return res.json({
-                        status: status.error,
-                        message: "A senha inserida no campo Senha antiga está incorreta.",
-                    });
-
-                bcrypt.hash(
-                    senhaNova,
-                    config.jwt.saltRounds,
-                    async function (err, hash) {
-                        if (err) throw err;
-                        await service.updateUser({ user, param: { senha: hash } });
-                        return res.status(200).json({
-                            status: status.ok,
-                            message: constants.attPassword
-                        });
-                    }
-                );
-            });
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
-
-    //Usuário pode excluir a própria conta (exclui pelo nif do usuário logado)
-    desativarMeuUsuario: async (req, res) => {
-        try {
-            const user = await service.findUserbyPk(req.user.nif, {
-                attributes: { exclude: ["senha"] },
-            });
-
-            if (user.ativado === 0) {
-                return res.json({
-                    status: status.error,
-                    message: "Seu usuário já foi desativado",
-                });
-            }
-            else {
-                await service.updateUser({ user, param: { ativado: 0 } });
-
-                return res.status(200).json({
-                    status: status.ok,
-                    message: `Sua conta foi desativada com sucesso!`,
-                });
-            }
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
-
-    //Gerentes --- (ADMIN)
-
-    //Registrar usuário
-    adicionarUsuario: async (req, res) => {
-        const { nif, nome, telefone, depto, email, cfp } = req.body;
-        let { admin } = req.body;
-
-        // Imagem padrão caso não seja inserida nenhuma imagem.
-        let image = config.adminAccount.defaultImage;
-
-        //Senha padrão
-        const senha = config.defaultPassword;
-
-        if (req.file) {
-            image = req.file.path;
-        }
-
-        //Regra de negócio para Controle de Usuário -> Se Input de Roles for 1 (usuário for ADM)
-        //Ele faz a busca de admin na tabela roles, e registra o id de Admin no usuário a ser criado
-        //na tabela user_roles
-        try {
-            const adminValidated = await adminArray(admin);
-
-            const hash = await bcrypt.hash(senha, config.jwt.saltRounds);
-
-            const user = await service.addUser({
-                param: {
-                    nif: nif,
-                    senha: hash,
-                    nome: nome,
-                    telefone: telefone,
-                    depto: depto,
-                    email: email,
-                    cfp: cfp,
-                    imagem: image,
-                },
-            });
-
-            if (adminValidated) {
-                let roles = await service.getDescRoles(adminValidated);
-                await service.setRoles(user, roles);
-            } else {
-                service.setRoles([1]);
-            }
+          bcrypt.hash(senhaNova, config.jwt.saltRounds, (err, hash) => {
+            if (err) throw err;
+            service.updateUser(user, { senha: hash });
             return res.status(200).json({
-                status: status.ok,
-                message: `Usuário com nif ${user.nif} criado com sucesso!`,
+              status: 'ok',
+              message: 'Sua senha foi atualizada com sucesso!',
             });
+          });
+        });
+      });
+  },
 
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+  // Usuário pode excluir a própria conta (exclui pelo nif do usuário logado)
+  desativarMeuUsuario: async (req, res) => {
+    const user = await service.findUserbyPk(req.user.nif, { attributes: null });
 
-    buscarTodos: async (req, res) => {
-        const { enabled } = req.params;
+    if (user == null) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Não há nenhum usuário (ativado) com esse NIF',
+      });
+    }
 
-        try {
-            let users = await service.findAllUsers(enabled);
+    await service.updateUser({ user, param: { ativado: 0 } });
 
-            if (users.length < 1) {
-                return res.json({ status: status.error, message: "Sem registros..." });
-            }
-            else {
-                for (let i = 0; i < users.length; i++) {
-                    const depto = await verifyConstraints({
-                        departamento: users[i].dataValues.depto,
-                    });
+    return res.json({
+      status: 'ok',
+      message: 'Sua conta foi desativada com sucesso!',
+    });
+  },
 
-                    users[i].dataValues.depto = depto[0].descricao;
-                }
-                return res.status(200).json(users);
-            }
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+  // Gerentes --- (ADMIN)
 
-    buscarPorNome: async (req, res) => {
-        try {
-            let users = await service.findAllByName(req.params.user);
+  // Registrar usuário
+  adicionarUsuario: (req, res) => {
+    let { nif, nome, telefone, depto, email, cfp, admin } = req.body;
 
-            if (users.length < 1) {
-                return res.json({
-                    status: status.error,
-                    message: `Usuários com nome ${req.params.user} não encontrados`,
-                });
-            }
-            else {
-                for (let i = 0; i < users.length; i++) {
-                    const depto = await verifyConstraints({
-                        departamento: users[i].dataValues.depto,
-                    });
+    // Imagem padrão caso não seja inserida nenhuma imagem.
+    let image = config.adminAccount.defaultImage;
 
-                    users[i].dataValues.depto = depto[0].descricao;
-                }
-                return res.status(200).json(users);
-            }
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+    // Senha padrão
+    const senha = 'senai115';
 
-    buscarPorNif: async (req, res) => {
-        try {
-            let user = await service.findUserbyPk(req.params.nif, {
-                attributes: { exclude: ["senha"] },
+    if (req.file) {
+      image = req.file.path;
+    }
+
+    // Regra de negócio para Controle de Usuário -> Se Input de Roles for 1 (usuário for ADM)
+    // Ele faz a busca de admin na tabela roles, e registra o id de Admin no usuário a ser criado
+    // na tabela user_roles
+    if (admin == 1) {
+      admin = ['admin'];
+    } else {
+      admin = ['user'];
+    }
+
+    bcrypt.hash(senha, config.jwt.saltRounds, (err, hash) => {
+      if (err) throw err;
+      service
+        .addUser({
+          param: {
+            nif,
+            senha: hash,
+            nome,
+            telefone,
+            depto,
+            email,
+            cfp,
+            imagem: image,
+          },
+        })
+        .then((user) => {
+          if (admin) {
+            service.getDescRoles(admin).then((roles) => {
+              service.setRoles(user, roles);
             });
+          } else {
+            service.setRoles([1]);
+          }
+          return res.status(200).json({
+            status: 'ok',
+            message: `Usuário com nif ${user.nif} criado com sucesso!`,
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({ message: err.message });
+        });
+    });
+  },
 
-            if (user === null) {
-                return res.json({
-                    status: status.error,
-                    message: constants.notFound
-                });
-            }
-            else {
-                const depto = await verifyConstraints({
-                    departamento: user.dataValues.depto,
-                });
-                user.dataValues.depto = depto[0].descricao;
-                return res.status(200).json(user);
-            }
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+  buscarTodos: async (req, res) => {
+    const { enabled } = req.params;
 
-    alterarPorNif: async (req, res) => {
-        const { nome, senha, telefone, email, cfp } = req.body;
-        let { admin, depto } = req.body;
+    const users = await service.findAllUsers(enabled);
 
-        try {
-            const user = await service.findUserbyPk(req.params.nif, {
-                attributes: { exclude: ["senha"] },
-            });
+    if (users.length < 1) {
+      return res.json({ status: 'error', message: 'Sem registros...' });
+    }
 
-            if (user === null) {
-                return res.json({
-                    status: status.error,
-                    message: constants.notFound
-                });
-            }
-            else {
-                let imagem = user.imagem;
+    for (let i = 0; i < users.length; i++) {
+      const depto = await verifyConstraints({
+        departamento: users[i].dataValues.depto,
+      });
 
-                if (depto === "0") {
-                    depto = user.depto;
-                }
+      users[i].dataValues.depto = depto[0].descricao;
+    }
 
-                if (admin) {
-                    const adminValidated = await adminArray(admin);
-                    const roles = await service.getDescRoles(adminValidated);
-                    await service.setRoles(user, roles);
-                }
+    return res.json(users);
+  },
 
-                if (req.file) {
-                    imagem = req.file.path;
-                }
+  buscarPorNome: async (req, res) => {
+    // const query = `%${req.query.search}`;
+    const users = await service.findAllByName(req.params.user);
 
-                if (senha !== undefined && senha !== null) {
-                    bcrypt.hash(senha, config.jwt.saltRounds, async function (err, hash) {
-                        await service.updateUser({ user: user, param: { senha: hash } });
-                        if (err) throw err;
-                    });
-                }
+    if (users.length < 1) {
+      return res.json({
+        status: 'error',
+        message: `Usuários com nome ${req.params.user} não encontrados`,
+      });
+    }
 
-                await service.updateUser({
-                    user: user,
-                    param: { nome, telefone, depto, email, cfp, imagem },
-                    file: req.file,
-                });
+    for (let i = 0; i < users.length; i++) {
+      const depto = await verifyConstraints({
+        departamento: users[i].dataValues.depto,
+      });
 
-                return res.status(200).json({
-                    status: status.ok,
-                    message: `Conta com NIF ${req.params.nif} atualizada com sucesso!!`,
-                });
-            }
+      users[i].dataValues.depto = depto[0].descricao;
+    }
 
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+    return res.json(users);
+  },
 
-    enableOrDisableAccount: async (req, res) => {
-        const { nif, enable } = req.params;
+  buscarPorNif: async (req, res) => {
+    const user = await service.findUserbyPk(req.params.nif, {
+      attributes: { exclude: ['senha'] },
+    });
 
-        try {
-            const user = await service.findUserbyPk(nif, {
-                attributes: { exclude: ["senha"] },
-            });
+    if (user == null) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Usuário não encontrado!' });
+    }
 
-            if (user === null) {
-                return res.json({
-                    status: status.error,
-                    message: constants.notFound
-                });
-            }
-            else {
-                await service.updateUser({ user: user, param: { ativado: enable } });
+    const depto = await verifyConstraints({
+      departamento: user.dataValues.depto,
+    });
 
-                return res.status(200).json({
-                    status: status.ok,
-                    message: `Status do Usuário ${user.nif} atualizado com sucesso!`,
-                });
-            }
-        } catch (err) {
-            res.status(500).json({ status: status.error, message: err.message });
-        }
-    },
+    user.dataValues.depto = depto[0].descricao;
 
-    // excluirPorNif: async (req, res) => {
-    //     const user = await service.findUserbyPk(req.params.nif, { attributes: null });
+    return res.json(user);
+  },
 
-    //     if (user == null) {
-    //         return res.status(404).json({ status: 'error', message: "Usuário não encontrado!" });
-    //     }
-    //     await service.destroyUser(user);
+  alterarPorNif: async (req, res) => {
+    const user = await service.findUserbyPk(req.params.nif, {
+      attributes: null,
+    });
 
-    //     if (user.imagem !== config.adminAccount.defaultImage) {
-    //         await unlink(user.imagem, (err) => {
-    //             if (err) throw err;
-    //             console.log(`successfully deleted ${user.imagem}`);
-    //         });
-    //     }
+    if (user == null) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Usuário não encontrado!' });
+    }
 
-    //     return res.status(200).json({ status: 'ok', message: `Conta com NIF ${user.nif} excluida com sucesso!!` });
-    // }
+    let { nome, senha, telefone, depto, email, cfp, admin } = req.body;
+
+    if (admin) {
+      if (admin == 1) {
+        admin = ['admin'];
+      } else {
+        admin = ['user'];
+      }
+
+      const roles = await service.getDescRoles(admin);
+      await service.setRoles(user, roles);
+    }
+
+    if (req.file) {
+      if (user.imagem !== config.adminAccount.defaultImage) {
+        await unlink(user.imagem, (err) => {
+          if (err) throw err;
+          console.log(`successfully deleted ${user.imagem}`);
+        });
+      }
+      var image = req.file.path;
+    }
+
+    bcrypt.hash(senha, config.jwt.saltRounds, async (err, hash) => {
+      if (err) throw err;
+      await service.updateUser({
+        user,
+        param: {
+          nome,
+          senha: hash,
+          telefone,
+          depto,
+          email,
+          cfp,
+          imagem: image,
+        },
+      });
+
+      return res.status(200).json({
+        status: 'ok',
+        message: `Conta com NIF ${req.params.nif} atualizada com sucesso!!`,
+      });
+    });
+  },
+
+  enableOrDisableAccount: async (req, res) => {
+    const { nif, enable } = req.params;
+
+    const user = await service.findUserbyPk(nif, { attributes: null });
+
+    if (user == null) {
+      return res
+        .status(404)
+        .json({ status: 'error', message: 'Usuário não encontrado!' });
+    }
+
+    await service.updateUser({ user, param: { ativado: enable } });
+
+    return res.json({
+      status: 'ok',
+      message: `Status do Usuário ${user.nif} atualizado com sucesso!`,
+    });
+  },
+
+  // excluirPorNif: async (req, res) => {
+  //     const user = await service.findUserbyPk(req.params.nif, { attributes: null });
+
+  //     if (user == null) {
+  //         return res.status(404).json({ status: 'error', message: "Usuário não encontrado!" });
+  //     }
+  //     await service.destroyUser(user);
+
+  //     if (user.imagem !== config.adminAccount.defaultImage) {
+  //         await unlink(user.imagem, (err) => {
+  //             if (err) throw err;
+  //             console.log(`successfully deleted ${user.imagem}`);
+  //         });
+  //     }
+
+  //     return res.status(200).json({ status: 'ok', message: `Conta com NIF ${user.nif} excluida com sucesso!!` });
+  // }
 };
