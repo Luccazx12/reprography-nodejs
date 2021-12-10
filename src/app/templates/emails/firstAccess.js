@@ -410,7 +410,7 @@ const firstAccess = ({ nome, email }) => `
                                     <tr>
                                         <td>
                                             <div>
-                                                <h1>Informações sobre primeiro acesso</h1>
+                                                <h1>Informações sobre seu primeiro acesso</h1>
                                                 <div class="flex">
                                                     <h3 class="align-center">Olá ${nome}, sua senha foi alterada com sucesso em seu primeiro acesso.</h3>
                                                 </div>
