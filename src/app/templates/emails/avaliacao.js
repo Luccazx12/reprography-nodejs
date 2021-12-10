@@ -421,7 +421,7 @@ const avaliacaoEmail = ({ id, titulo_pedido, realizado_qtdade, nif, avaliacao_ob
                                                 </div>
 
 
-                                                <h2 id="h2SemMargin">Feedback:</h2>
+                                                <h3 id="h2SemMargin"><strong>Feedback:</strong></h3>
                                                 <h3>${avaliacao_obs}</h3>
                                         </td>
                                     </tr>
