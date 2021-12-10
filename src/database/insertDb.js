@@ -161,7 +161,8 @@ exports.InserirRegistros = async () => {
                 id_servicoCA: 4,
                 descricao: "Colorida - Tamanho A4",
                 quantidade: 4000,
-                valor_unitario: 0.1
+                valor_unitario: 0.1,
+                ativado: 0
             },
             {
                 id_servicoCA: 5,
@@ -201,6 +202,12 @@ exports.InserirRegistros = async () => {
                 descricao: "Capa em PVC e espirais de plástico",
                 quantidade: 30000,
                 valor_unitario: 0.45
+            },
+            {
+                id_servicoCT: 5,
+                descricao: "Sem capa",
+                quantidade: 9999999,
+                valor_unitario: 0
             },
         ]);
         console.log("\n(||| | | ----- Registros Inseridos com sucesso!!! ----- | | |||)");
