@@ -195,8 +195,9 @@ module.exports = {
         const { centro_custos, titulo_pedido, modo_envio, curso } = req.body;
 
         // Input que será enviado para tabela Det_Pedido
-        const { num_copias, num_paginas, servicoCT, servicoCA, observacoes } = req.body;
+        const { num_copias, num_paginas, servicoCT, servicoCA, } = req.body;
 
+        let { observacoes } = req.body;
         let nomeArquivo = "";
         let caminhoArquivo = "";
 
@@ -278,6 +279,13 @@ module.exports = {
                         servicoCT: servicoCT
                     });
 
+                    if (observacoes) {
+                        observacoes = `<strong>Observações:</strong> ${observacoes}`
+                    }
+                    else {
+                        observacoes = "";
+                    }
+
                     const output = template.pedidoEmail({
                         id: pedido.id_pedido,
                         titulo_pedido: titulo_pedido,
@@ -340,10 +348,15 @@ module.exports = {
                 res.json({ status: status.error, message: `Primeiro realize a avaliação Nº${jaSolicitado.realizado_qtdade} seu pedido!` })
             }
             else {
-                let { titulo_pedido, id_modo_envio, custo_total, realizado_qtdade } = jaSolicitado;
-                const { id_centro_custos, id_curso, observacoes, num_copias,
-                    num_paginas, anexo_name, anexo_path, sub_total_copias } = jaSolicitado.det_pedidos[0];
+                let { titulo_pedido, id_modo_envio,
+                    custo_total, realizado_qtdade } = jaSolicitado;
+
+                const { id_centro_custos, id_curso, num_copias, num_paginas,
+                    anexo_name, anexo_path, sub_total_copias } = jaSolicitado.det_pedidos[0];
+
                 const { servicoCT, servicoCA } = jaSolicitado.servico_pedidos[0];
+
+                let { observacoes } = jaSolicitado.det_pedidos[0];
 
                 let realizado_qtdadeAtt = realizado_qtdade;
 
@@ -389,6 +402,13 @@ module.exports = {
                         curso: id_curso, modo_envio: id_modo_envio,
                         avaliacao: 0, servicoCA: servicoCA, servicoCT: servicoCT
                     });
+
+                    if (observacoes) {
+                        observacoes = `<strong>Observações:</strong> ${observacoes}`
+                    }
+                    else {
+                        observacoes = "";
+                    }
 
                     const output = template.pedidoEmail({
                         id: pedido.id_pedido,
