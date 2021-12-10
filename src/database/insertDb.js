@@ -219,9 +219,10 @@ exports.InserirRegistros = async () => {
 exports.InserirUsuario = async () => {
     try {
         const password = await bcrypt.hash(
-            config.authConfig.adminAccount.pass, config.authConfig.jwt.saltRounds);
+            config.authConfig.adminAccount.pass, config.authConfig.jwt.saltRounds
+            );
         const user = await models.usuario.create({
-            nif: config.authConfig.adminAccount.nif,
+            nif: 1,
             senha: password,
             nome: "ADMIN ACCOUNT",
             email: config.authConfig.adminAccount.email,
