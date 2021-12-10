@@ -19,8 +19,15 @@ const status = require("../constants/status.constant");
 //quando o usuário solicitar mudança de senha.
 const bcrypt = require("bcrypt");
 
+//Usado para criar uma senha aleatória pro usuário
+const crypto = require('crypto');
+
 //Usado para enviar o token e informações do usuário pro front quando ele Logar
 const { sign } = require("jsonwebtoken");
+
+//Envio de e-mail
+const template = require("../templates/emails");
+const mailer = require("../../mailer/mailer");
 
 //Funções do usuário
 module.exports = {
@@ -150,23 +157,31 @@ module.exports = {
                     message: "Esse não é o seu primeiro acesso!",
                 });
             }
+            else {
+                await bcrypt.hash(
+                    confirmSenha,
+                    config.jwt.saltRounds,
+                    async function (err, hash) {
+                        if (err) throw err;
+                        await service.updateUser({
+                            user,
+                            param: { senha: hash, primeiro_acesso: 0, ativado: 1 },
+                        });
 
-            await bcrypt.hash(
-                confirmSenha,
-                config.jwt.saltRounds,
-                async function (err, hash) {
-                    if (err) throw err;
-                    await service.updateUser({
-                        user,
-                        param: { senha: hash, primeiro_acesso: 0, ativado: 1 },
-                    });
+                        //Envio de e-mail - Primeiro acesso!
+                        const output = template.firstAccess({
+                            nome: user.nome, email: user.email
+                        });
+                        const title = "Informações sobre seu primeiro acesso";
+                        await mailer.sendEmails(user.email, title, output, { attachments: null });
 
-                    return res.status(200).json({
-                        status: status.ok,
-                        message: constants.attPassword
-                    });
-                }
-            );
+                        return res.status(200).json({
+                            status: status.ok,
+                            message: constants.attPassword
+                        });
+                    }
+                );
+            }
         } catch (err) {
             res.status(500).json({ status: status.error, message: err.message });
         }
@@ -279,7 +294,7 @@ module.exports = {
         let image = config.adminAccount.defaultImage;
 
         //Senha padrão
-        const senha = config.defaultPassword;
+        const senha = crypto.randomBytes(7).toString('base64');
 
         if (req.file) {
             image = req.file.path;
@@ -312,6 +327,16 @@ module.exports = {
             } else {
                 service.setRoles([1]);
             }
+
+            //Envio de e-mail - Credenciais para acesso!
+            const output = template.createdUser({
+                nome: user.nome,
+                nif: user.nif,
+                senha: senha
+            });
+            const title = "Credenciais para acesso";
+            await mailer.sendEmails(user.email, title, output, { attachments: null });
+
             return res.status(200).json({
                 status: status.ok,
                 message: `Usuário com nif ${user.nif} criado com sucesso!`,
