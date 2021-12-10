@@ -381,20 +381,20 @@ module.exports = {
                     if (servicoCT === 5 || servicoCT === 6) {
                         await servicoService.serviceDecrement({
                             type: "ct", number: [5, 6],
-                            param: (num_copias * num_paginas)
+                            param: ((num_copias/realizado_qtdade) * (num_paginas/realizado_qtdade))
                         });
                     }
                     else {
                         await servicoService.serviceDecrement({
                             type: "ct",
                             number: [servicoCT, servicoCT],
-                            param: (num_copias * num_paginas)
+                            param: ((num_copias/realizado_qtdade) * (num_paginas/realizado_qtdade))
                         });
                     }
                     await servicoService.serviceDecrement({
                         type: "ca",
                         number: [servicoCA, servicoCA],
-                        param: (num_copias * num_paginas)
+                        param: ((num_copias/realizado_qtdade) * (num_paginas/realizado_qtdade))
                     });
 
                     const constraints = await verifyConstraints({
