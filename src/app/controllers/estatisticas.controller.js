@@ -52,7 +52,7 @@ module.exports = {
             const num_curso = await curso.findAll();
 
             // Objeto que será preenchido com descricao e quantidade
-            let cursoObj = {};
+            let cursoArray = [];
 
             // Percorrendo os quatro tipos de curso e trazendo os valores quando id_curso = 1, 2, 3 e 4
             for (let i = 1; i <= num_curso.length; i++) {
@@ -78,7 +78,7 @@ module.exports = {
                     }
                 });
 
-                cursoObj[i] = {
+                cursoArray[i] = {
                     descricao: cursoDesc.descricao,
                     qtdade_solicitada: cursoCount,
                 };
@@ -86,7 +86,7 @@ module.exports = {
             // Lenght Centro_custos
             const num_centro_custos = await centro_custos.findAll();
             // Objeto que será preenchido
-            let centro_custosObj = {};
+            let centro_custosArray = [];
 
             for (let i = 1; i <= num_centro_custos.length; i++) {
 
@@ -111,7 +111,7 @@ module.exports = {
                     }
                 });
 
-                centro_custosObj[i] = {
+                centro_custosArray[i] = {
                     descricao: centro_custosDesc.descricao,
                     qtdade_solicitada: centro_custosCount,
                 };
@@ -175,7 +175,7 @@ module.exports = {
             // Lenght Servico CT
             const num_servicoCT = await servicoCopiaTamanho.findAll();
             // Objeto 
-            let servicoCTObj = {};
+            let servicoCTArray = [];
 
             for (let i = 1; i <= num_servicoCT.length; i++) {
 
@@ -200,16 +200,16 @@ module.exports = {
                     }
                 });
 
-                servicoCTObj[i] = {
-                    status: servicoCTDesc.descricao,
+                servicoCTArray[i] = {
+                    descricao: servicoCTDesc.descricao,
                     qtdade_solicitada: servicoCTCount,
-                };
+            };
             };
 
             // Lenght Servico CT
             const num_servicoCA = await servicoCapaAcabamento.findAll();
             // Objeto 
-            let servicoCAObj = {};
+            let servicoCAArray = [];
 
             for (let i = 1; i <= num_servicoCA.length; i++) {
 
@@ -234,26 +234,26 @@ module.exports = {
                     }
                 });
 
-                servicoCAObj[i] = {
-                    status: servicoCADesc.descricao,
+                servicoCAArray[i] = {
+                    descricao: servicoCADesc.descricao,
                     qtdade_solicitada: servicoCACount,
                 };
             };
 
-            return res.status(200).json([{
+            return res.status(200).json({
                 mes: meses[mes - 1],
                 ano: ano,
                 pedidos: pedidos,
                 avaliacao_pedido: [avaliacao_pedidoObj],
-                servico_copiaTamanho: [servicoCTObj],
-                servico_capaAcabamento: [servicoCAObj],
+                servicoCTArray,
+                servicoCAArray,
                 num_paginas: num_paginas,
                 num_copias: total_copias,
                 folhas_impressas: folhas_impressas,
-                centro_custos: [centro_custosObj],
-                curso: [cursoObj],
+                centro_custosArray,
+                cursoArray,
                 custo_total: custo_total
-            }]);
+            });
         }
         catch (err) {
             res.status(500).json({ status: status.error, message: err.message });
