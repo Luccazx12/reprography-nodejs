@@ -122,6 +122,10 @@ const avaliacaoEmail = ({ id, titulo_pedido, realizado_qtdade, nif, avaliacao_ob
             margin-bottom: 30px;
         }
 
+        #h2SemMargin {
+            margin-bottom: 20px !important;
+        }
+
         h3 {
             margin-bottom: 20px !important;
         }
@@ -410,15 +414,15 @@ const avaliacaoEmail = ({ id, titulo_pedido, realizado_qtdade, nif, avaliacao_ob
                                     <tr>
                                         <td>
                                             <div>
-                                                <h1>Avaliação nº${realizado_qtdade} do pedido nº${id}: ${titulo_pedido} </h1>
+                                                <h1>Avaliação nº${realizado_qtdade} do pedido nº${id}: <strong>${titulo_pedido}</strong> </h1>
                                                 <div class="flex">
-                                                    <h3 class="align-center" id="status">Status: ${avaliacao_pedido}</h3>
+                                                    <h3 class="align-center" id="status">Status: <strong>${avaliacao_pedido}</strong></h3>
                                                     <h3 class="align-center" id="nif">NIF do solicitante: <span>${nif}</span></h3>
                                                 </div>
 
 
-                                                <h3>Feedback:</h3>
-                                                <h4>${avaliacao_obs}</h4>
+                                                <h2 id="h2SemMargin">Feedback:</h2>
+                                                <h3>${avaliacao_obs}</h3>
                                         </td>
                                     </tr>
                                     </tbody>

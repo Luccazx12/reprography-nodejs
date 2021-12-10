@@ -417,7 +417,7 @@ const pedidoEmail = ({ id, titulo_pedido, realizado_qtdade, nif, centro_custos, 
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td>
-                                            <h1>Solicitação nº${realizado_qtdade} do pedido nº${id}: ${titulo_pedido} </h1>
+                                            <h1>Solicitação nº${realizado_qtdade} do pedido nº${id}: <strong>${titulo_pedido}</strong> </h1>
                                             <div class="flex">
                                                 <h4 class="align-center" id="modo_envio">Modo de Envio: ${modo_envio}</h4>
                                                 <h4 class ="align-center" id="nif">NIF do solicitante: <span>${nif}</span></h4>
@@ -442,7 +442,11 @@ const pedidoEmail = ({ id, titulo_pedido, realizado_qtdade, nif, centro_custos, 
 
                     <p>Centro de Custos: ${centro_custos}</p>
                     <p>Curso: ${curso}</p>
-                    <p><strong>Observações:</strong> ${observacoes}</p>
+                </div>
+                <h3></h3>
+                <div>
+                    <h4>${observacoes}</h4>
+                </div>
             </td>
         </tr>
         </tbody>
