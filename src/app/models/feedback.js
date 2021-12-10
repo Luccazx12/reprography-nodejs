@@ -32,7 +32,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     avaliacao_obs: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(255),
       allowNull: true
     }
   }, {
