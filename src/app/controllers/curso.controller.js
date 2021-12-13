@@ -1,28 +1,35 @@
-// Constants
+//Service dos serviços
+const service = require("../services/curso.service");
+
+//Constants
 const status = require("../constants/status.constant");
 
+//Verificando usuário como admin
+const { authJwt } = require("../middlewares");
+
 module.exports = {
+
     cursoGet: async (req, res) => {
         const { enabled } = req.params;
 
         try {
-            const servicos = await service.findAllDeps(enabled);
+            const cursos = await service.findAllCourses(enabled);
 
-            if (servicos.servicosCT.length < 1 && servicos.servicosCA.length < 1) {
+            if (cursos.length < 1) {
                 return res.json({ status: status.error, message: "Sem registros..." });
             }
 
             //Se a solicitação for de serviços habilitados (exibidos no formulário 
             // de pedido), então será retornado sem problemas o array para o usuário.
             if (enabled === "1") {
-                return res.status(200).json(servicos);
+                return res.status(200).json(cursos);
             }
             // Agora se o usuário estiver solicitando os serviços desabilitados,
             // então será verificado se ele tem permissão para vizualizar isso
             // (ROLE ADMIN).
             else {
                 // Enviando a array de serviços dentro da requisição
-                req.array = servicos;
+                req.array = cursos;
 
                 // Executando middleware para verificar se o usuário é admin ou não
                 // se ele for admin, no propŕio middleware será retornado o array,
@@ -35,11 +42,50 @@ module.exports = {
         };
     },
 
-    departamentoGetByPk: async (req, res) => {
 
+    enableOrDisableCurso: async (req, res) => {
+        const { id, enable } = req.params;
+
+        try {
+            const curso = await service.findCourseByPk(id);
+            await service.updateCourse({ course: curso, param: { ativado: enable } });
+
+            return res.status(200).json({ status: status.ok, message: "Curso atualizado com sucesso!" });
+
+        }
+        catch (err) {
+            res.status(500).json({ status: status.error, message: err.message });
+        };
     },
 
-    departamentoPost: async (req, res) => {
+    cursoGetByPk: async (req, res) => {
+        const { id } = req.params;
 
+        try {
+            const curso = await service.findCourseByPk(id);
+            return res.status(200).json(curso);
+        }
+        catch (err) {
+            res.status(500).json({ status: status.error, message: err.message });
+        };
+    },
+
+    cursoPost: async (req, res) => {
+        const { descricao, id_depto } = req.body;
+
+        try {
+            await service.createCourse({
+                params: {
+                    descricao: descricao,
+                    id_depto: id_depto
+                }
+            }).then(() => {
+                return res.status(200).json({ status: status.ok, message: "Curso criado com sucesso!" });
+            })
+
+        }
+        catch (err) {
+            res.status(500).json({ status: status.error, message: err.message });
+        };
     },
 }
