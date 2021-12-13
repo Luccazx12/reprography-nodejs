@@ -74,15 +74,20 @@ module.exports = {
         const { descricao, id_depto } = req.body;
 
         try {
-            await service.createCourse({
-                params: {
-                    descricao: descricao,
-                    id_depto: id_depto
-                }
-            }).then(() => {
+            const alreadyCreated = await service.findByName(descricao)
+            if (alreadyCreated === null) {
+                await service.createCourse({
+                    params: {
+                        descricao: descricao,
+                        id_depto: id_depto
+                    }
+                })
                 return res.status(200).json({ status: status.ok, message: "Curso criado com sucesso!" });
-            })
-
+            }
+            else {
+                await service.updateCourse({ course: alreadyCreated, param: { ativado: 1, id_depto: id_depto } });
+                return res.status(200).json({ status: status.ok, message: "Curso atualizado com sucesso!" });
+            }
         }
         catch (err) {
             res.status(500).json({ status: status.error, message: err.message });

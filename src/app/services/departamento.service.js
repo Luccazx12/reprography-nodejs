@@ -29,6 +29,16 @@ module.exports = {
         return updated;
     },
 
+    findByName: async (descricao) => {
+        const deps = await departamento.findOne({
+            where: {
+                descricao: descricao
+            },
+        });
+
+        return deps;
+    },
+
     destroyDep: async () => {
         return "Método não implementado!";
     },

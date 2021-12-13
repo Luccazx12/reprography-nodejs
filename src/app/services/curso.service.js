@@ -5,11 +5,11 @@ var { curso } = initModels(sequelize);
 module.exports = {
 
     findAllCourses: async (enabled) => {
-       const cursos = await curso.findAll({
-           where: { ativado: enabled }
+        const cursos = await curso.findAll({
+            where: { ativado: enabled }
         });
 
-       return cursos;
+        return cursos;
     },
 
     findCourseByPk: async (id) => {
@@ -27,6 +27,16 @@ module.exports = {
     updateCourse: async ({ course, param }) => {
         const updated = await course.update(param);
         return updated;
+    },
+
+    findByName: async (descricao) => {
+        const cursos = await curso.findOne({
+            where: {
+                descricao: descricao
+            },
+        });
+
+        return cursos;
     },
 
     destroyCourse: async () => {
