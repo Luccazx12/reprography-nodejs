@@ -48,6 +48,11 @@ module.exports = {
 
         try {
             const curso = await service.findCourseByPk(id);
+
+            if(curso === null){
+                return res.json({ status: status.error, message: "Curso não encontrado" })
+            }
+
             await service.updateCourse({ course: curso, param: { ativado: enable } });
 
             return res.status(200).json({ status: status.ok, message: "Curso atualizado com sucesso!" });

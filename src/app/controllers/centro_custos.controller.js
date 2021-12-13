@@ -48,6 +48,10 @@ module.exports = {
 
         try {
             const centroCustos = await service.findCentroCustosByPk(id);
+            if(centroCustos === null){
+                return res.json({ status: status.error, message: "Centro de custo não encontrado" })
+            }
+
             await service.updateCentroCustos({ custos: centroCustos, param: { ativado: enable } });
 
             return res.status(200).json({ status: status.ok, message: "Centro de custos atualizado com sucesso!" });

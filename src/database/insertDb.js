@@ -33,7 +33,7 @@ exports.InserirRegistros = async () => {
             },
             {
                 id_centro_custos: 2,
-                descricao: "Técnico de Nível Média Presencial"
+                descricao: "Técnico de Nível Médio Presencial"
             },
             {
                 id_centro_custos: 3,

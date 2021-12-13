@@ -29,6 +29,16 @@ module.exports = {
         return updated;
     },
 
+    updateByDep: async ({ id, param }) => {
+        const updated = await curso.update(param, {
+            where: {
+                id_depto: id
+            }
+        });
+
+        return updated;
+    },
+
     findByName: async (descricao) => {
         const cursos = await curso.findOne({
             where: {
