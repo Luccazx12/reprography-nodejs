@@ -27,6 +27,16 @@ module.exports = {
         return updated;
     },
 
+    findByName: async (descricao) => {
+        const centro_custos = await centro_custos.findOne({
+            where: {
+                descricao:  descricao
+            },
+        });
+
+        return centro_custos;
+    },
+
     destroyCentroCustos: async () => {
         return "Método não implementado!";
     },

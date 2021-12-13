@@ -74,14 +74,18 @@ module.exports = {
         const { descricao } = req.body;
 
         try {
-            await service.createCentroCustos({
-                params: {
-                    descricao: descricao
-                }
-            }).then(() => {
-                return res.status(200).json({ status: status.ok, message: "Centro de custos criado com sucesso!" });
-            })
-
+            const alreadyCreated = await service.findByName(descricao)
+            if(alreadyCreated !== null){
+                await service.createCentroCustos({
+                    params: {
+                        descricao: descricao
+                    }
+                })
+                    return res.status(200).json({ status: status.ok, message: "Centro de custos criado com sucesso!" });
+            }
+            else{
+                await service.updateCentroCustos({custos: alreadyCreated, param: { ativado: 1}})
+            }
         }
         catch (err) {
             res.status(500).json({ status: status.error, message: err.message });
