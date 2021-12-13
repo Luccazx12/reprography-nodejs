@@ -42,4 +42,4 @@ module.exports = {
     departamentoPost: async (req, res) => {
 
     },
-},
+}

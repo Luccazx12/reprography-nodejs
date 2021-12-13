@@ -1,5 +1,5 @@
 const { authJwt } = require("../middlewares");
-const controller = require("../controllers/departamento.controller");
+const controller = require("../controllers/centro_custos.controller");
 
 module.exports = function (app) {
     app.use(function (req, res, next) {
@@ -16,40 +16,40 @@ module.exports = function (app) {
 
     // Exibindo departamentos para o Administrador (ele passa os serviços ativos pra qualquer
     // usuário e inativos somente para o administrador => Regra na controller)
-    app.get("/deptos/enabled=:enabled",
+    app.get("/centroCustos/enabled=:enabled",
         [
             authJwt.validateToken
         ],
-        controller.departamentoGet
+        controller.centroCustosGet
     );
 
     // Exibindo um departamento por id para o Administrador
-    app.get("/depto/:id/",
+    app.get("/centroCusto/:id/",
         [
             authJwt.validateToken,
             authJwt.isAdmin
         ],
-        controller.departamentoGetByPk
+        controller.centroCustosGetByPk
     );
 
     // POST
 
     // Criando um departamento
-    app.post("/depto",
+    app.post("/centroCustos",
         [
             authJwt.validateToken, authJwt.isAdmin
         ],
-        controller.departamentoPost
+        controller.centroCustosPost
     );
 
     // PUT
 
     // Rota para ativar/desativar o serviço
-    app.put("/depto/:id/enable=:enable",
+    app.put("/centroCustos/:id/enable=:enable",
         [
             authJwt.validateToken, authJwt.isAdmin
         ],
-        controller.enableOrDisableDepto
+        controller.enableOrDisableCentroCustos
     );
 
 

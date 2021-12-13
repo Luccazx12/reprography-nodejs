@@ -1,40 +1,33 @@
-//Biblioteca do sequelize 
-const Sequelize = require("sequelize");
-//Operadores do sequelize
-const Op = Sequelize.Op;
-
 //Inicializando as models e as recebendo
 const { initModels } = require("../models/init-models");
 var { centro_custos } = initModels(sequelize);
 
 module.exports = {
 
-    findAllDeps: async (enabled) => {
+    findAllCentroCustos: async (enabled) => {
         const centroCustos = await centro_custos.findAll({
             where: { ativado: enabled }
-         });
+        });
 
-       return centroCustos;
+        return centroCustos;
     },
 
-    findDepByPk: async (id) => {
-        const deps = await centro_custos.findByPk(id);
-
-        return deps;
+    findCentroCustosByPk: async (id) => {
+        const centroCustos = await centro_custos.findByPk(id);
+        return centroCustos;
     },
 
-    createDep: async ({ params }) => {
-        const deps = await centro_custos.create(params);
-
-        return deps;
+    createCentroCustos: async ({ params }) => {
+        const centroCustos = await centro_custos.create(params);
+        return centroCustos;
     },
 
-    updateDep: async ({ centro, param }) => {
-        const updated = await centro.update(param);
+    updateCentroCustos: async ({ custos, param }) => {
+        const updated = await custos.update(param);
         return updated;
     },
 
-    destroyDep: async () => {
+    destroyCentroCustos: async () => {
         return "Método não implementado!";
     },
 };

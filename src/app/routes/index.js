@@ -11,5 +11,6 @@ require("./estatisticas.routes")(app);
 require("./swagger.routes")(app);
 require("./feedback.routes")(app);
 require("./departamento.routes")(app);
+require("./centro_custos.routes")(app);
 
 module.exports = app;
