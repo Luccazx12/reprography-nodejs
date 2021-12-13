@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     depto: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'departamento',
