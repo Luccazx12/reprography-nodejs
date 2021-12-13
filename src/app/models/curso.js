@@ -4,19 +4,25 @@ module.exports = function(sequelize, DataTypes) {
     id_curso: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     descricao: {
       type: DataTypes.STRING(50),
       allowNull: false
     },
     id_depto: {
-      type: DataTypes.CHAR(36),
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'departamento',
         key: 'id_depto'
       }
+    },
+    ativado: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
     }
   }, {
     sequelize,

@@ -7,7 +7,8 @@ const mailConfig = {
     service: mailer.hotmail.service,
     auth: {
         user: mailer.hotmail.auth.user,
-        pass: mailer.hotmail.auth.pass
+        pass: mailer.hotmail.auth.pass,
+        port: 587
     },
     tls: {
         ciphers: mailer.hotmail.tls.ciphers,

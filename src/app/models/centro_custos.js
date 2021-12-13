@@ -4,11 +4,17 @@ module.exports = function(sequelize, DataTypes) {
     id_centro_custos: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     descricao: {
       type: DataTypes.STRING(50),
       allowNull: false
+    },
+    ativado: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
     }
   }, {
     sequelize,
