@@ -2,12 +2,10 @@
 const service = require("../services/departamento.service");
 
 //Constants
-const constants = require("../constants/service.constant");
 const status = require("../constants/status.constant");
 
-//Variáveis para respostas
-var typeMsg = "";
-var okMessage = "";
+//Verificando usuário como admin
+const { authJwt } = require("../middlewares");
 
 module.exports = {
 
@@ -50,15 +48,10 @@ module.exports = {
 
         try {
             const depto = await service.findDepByPk(id);
+            await service.updateDep({ departament: depto, param: { ativado: enable } });
 
-            if (depto == null) {
-                return res.json({ status: status.error, message: constants.notFound });
-            }
-            else {
-                await service.updateDep({ departament: depto, param: { ativado: enable } });
+            return res.status(200).json({ status: status.ok, message: "Departamento atualizado com sucesso!" });
 
-                return res.status(200).json({ status: status.ok, message: constants.successAt });
-            }
         }
         catch (err) {
             res.status(500).json({ status: status.error, message: err.message });
@@ -66,20 +59,11 @@ module.exports = {
     },
 
     departamentoGetByPk: async (req, res) => {
-        const { id, type } = req.params;
+        const { id } = req.params;
 
         try {
-            const servicos = await service.findServicoByPk({ type: type, id: id });
-
-            if (servicos === false) {
-                return res.json({ status: status.error, message: constants.invalidParameter });
-            }
-            else if (servicos === null) {
-                return res.json({ status: status.error, message: constants.notFound });
-            }
-            else {
-                return res.status(200).json(servicos);
-            }
+            const depto = await service.findDepByPk(id);
+            return res.status(200).json(depto);
         }
         catch (err) {
             res.status(500).json({ status: status.error, message: err.message });
@@ -103,5 +87,4 @@ module.exports = {
             res.status(500).json({ status: status.error, message: err.message });
         };
     },
-
-};
+}

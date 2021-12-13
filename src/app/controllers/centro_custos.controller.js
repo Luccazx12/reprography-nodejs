@@ -1,25 +1,35 @@
+//Service dos serviços
+const service = require("../services/centro_custos.service");
+
+//Constants
+const status = require("../constants/status.constant");
+
+//Verificando usuário como admin
+const { authJwt } = require("../middlewares");
+
 module.exports = {
-    departamentoGet: async (req, res) => {
+
+    centroCustosGet: async (req, res) => {
         const { enabled } = req.params;
 
         try {
-            const servicos = await service.findAllDeps(enabled);
+            const centroCustos = await service.findAllCentroCustos(enabled);
 
-            if (servicos.servicosCT.length < 1 && servicos.servicosCA.length < 1) {
+            if (centroCustos.length < 1) {
                 return res.json({ status: status.error, message: "Sem registros..." });
             }
 
             //Se a solicitação for de serviços habilitados (exibidos no formulário 
             // de pedido), então será retornado sem problemas o array para o usuário.
             if (enabled === "1") {
-                return res.status(200).json(servicos);
+                return res.status(200).json(centroCustos);
             }
             // Agora se o usuário estiver solicitando os serviços desabilitados,
             // então será verificado se ele tem permissão para vizualizar isso
             // (ROLE ADMIN).
             else {
                 // Enviando a array de serviços dentro da requisição
-                req.array = servicos;
+                req.array = centroCustos;
 
                 // Executando middleware para verificar se o usuário é admin ou não
                 // se ele for admin, no propŕio middleware será retornado o array,
@@ -32,11 +42,49 @@ module.exports = {
         };
     },
 
-    departamentoGetByPk: async (req, res) => {
 
+    enableOrDisableCentroCustos: async (req, res) => {
+        const { id, enable } = req.params;
+
+        try {
+            const centroCustos = await service.findCentroCustosByPk(id);
+            await service.updateCentroCustos({ custos: centroCustos, param: { ativado: enable } });
+
+            return res.status(200).json({ status: status.ok, message: "Centro de custos atualizado com sucesso!" });
+
+        }
+        catch (err) {
+            console.log(err)
+        };
     },
 
-    departamentoPost: async (req, res) => {
+    centroCustosGetByPk: async (req, res) => {
+        const { id } = req.params;
 
+        try {
+            const centroCustos = await service.findCentroCustosByPk(id);
+            return res.status(200).json(centroCustos);
+        }
+        catch (err) {
+            res.status(500).json({ status: status.error, message: err.message });
+        };
+    },
+
+    centroCustosPost: async (req, res) => {
+        const { descricao } = req.body;
+
+        try {
+            await service.createCentroCustos({
+                params: {
+                    descricao: descricao
+                }
+            }).then(() => {
+                return res.status(200).json({ status: status.ok, message: "Centro de custos criado com sucesso!" });
+            })
+
+        }
+        catch (err) {
+            res.status(500).json({ status: status.error, message: err.message });
+        };
     },
 }
