@@ -2,13 +2,19 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('departamento', {
     id_depto: {
-      type: DataTypes.CHAR(36),
+      autoIncrement: true,
+      type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,    
     },
     descricao: {
       type: DataTypes.STRING(50),
       allowNull: false
+    },
+    ativado: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1
     }
   }, {
     sequelize,
