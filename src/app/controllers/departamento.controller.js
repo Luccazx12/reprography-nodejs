@@ -74,14 +74,19 @@ module.exports = {
         const { descricao } = req.body;
 
         try {
-            await service.createDep({
-                params: {
-                    descricao: descricao
-                }
-            }).then(() => {
+            const alreadyCreated = await service.findByName(descricao);
+            if (alreadyCreated === null) {
+                await service.createDep({
+                    params: {
+                        descricao: descricao
+                    }
+                })
                 return res.status(200).json({ status: status.ok, message: "Departamento criado com sucesso!" });
-            })
-
+            }
+            else {
+                await service.updateDep({ departament: alreadyCreated, param: { ativado: 1 } })
+                return res.status(200).json({ status: status.ok, message: "Departamento atualizado com sucesso!" });
+            }
         }
         catch (err) {
             res.status(500).json({ status: status.error, message: err.message });

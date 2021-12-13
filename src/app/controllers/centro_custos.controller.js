@@ -75,16 +75,17 @@ module.exports = {
 
         try {
             const alreadyCreated = await service.findByName(descricao)
-            if(alreadyCreated !== null){
+            if (alreadyCreated === null) {
                 await service.createCentroCustos({
                     params: {
                         descricao: descricao
                     }
                 })
-                    return res.status(200).json({ status: status.ok, message: "Centro de custos criado com sucesso!" });
+                return res.status(200).json({ status: status.ok, message: "Centro de custos criado com sucesso!" });
             }
-            else{
-                await service.updateCentroCustos({custos: alreadyCreated, param: { ativado: 1}})
+            else {
+                await service.updateCentroCustos({ custos: alreadyCreated, param: { ativado: 1 } })
+                return res.status(200).json({ status: status.ok, message: "Centro de custos atualizado com sucesso!" });
             }
         }
         catch (err) {

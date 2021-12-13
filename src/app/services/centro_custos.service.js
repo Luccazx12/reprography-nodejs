@@ -28,13 +28,13 @@ module.exports = {
     },
 
     findByName: async (descricao) => {
-        const centro_custos = await centro_custos.findOne({
+        const centroCustos = await centro_custos.findOne({
             where: {
-                descricao:  descricao
+                descricao: descricao
             },
         });
 
-        return centro_custos;
+        return centroCustos;
     },
 
     destroyCentroCustos: async () => {
