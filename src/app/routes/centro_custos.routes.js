@@ -45,7 +45,7 @@ module.exports = function (app) {
     // PUT
 
     // Rota para ativar/desativar o serviço
-    app.put("/centroCustos/:id/enable=:enable",
+    app.put("/centroCusto/:id/enable=:enable",
         [
             authJwt.validateToken, authJwt.isAdmin
         ],

@@ -1,5 +1,6 @@
-//Service dos serviços
+//Service dos serviços 
 const service = require("../services/departamento.service");
+const cursoService = require("../services/curso.service");
 
 //Constants
 const status = require("../constants/status.constant");
@@ -18,23 +19,24 @@ module.exports = {
             if (deptos.length < 1) {
                 return res.json({ status: status.error, message: "Sem registros..." });
             }
-
-            //Se a solicitação for de serviços habilitados (exibidos no formulário 
-            // de pedido), então será retornado sem problemas o array para o usuário.
-            if (enabled === "1") {
-                return res.status(200).json(deptos);
-            }
-            // Agora se o usuário estiver solicitando os serviços desabilitados,
-            // então será verificado se ele tem permissão para vizualizar isso
-            // (ROLE ADMIN).
             else {
-                // Enviando a array de serviços dentro da requisição
-                req.array = deptos;
+                //Se a solicitação for de serviços habilitados (exibidos no formulário 
+                // de pedido), então será retornado sem problemas o array para o usuário.
+                if (enabled === "1") {
+                    return res.status(200).json(deptos);
+                }
+                // Agora se o usuário estiver solicitando os serviços desabilitados,
+                // então será verificado se ele tem permissão para vizualizar isso
+                // (ROLE ADMIN).
+                else {
+                    // Enviando a array de serviços dentro da requisição
+                    req.array = deptos;
 
-                // Executando middleware para verificar se o usuário é admin ou não
-                // se ele for admin, no propŕio middleware será retornado o array,
-                // se não, ele irá responder que é necessário o ROLE ADMIN.
-                await authJwt.isAdmin(req, res);
+                    // Executando middleware para verificar se o usuário é admin ou não
+                    // se ele for admin, no propŕio middleware será retornado o array,
+                    // se não, ele irá responder que é necessário o ROLE ADMIN.
+                    await authJwt.isAdmin(req, res);
+                }
             }
         }
         catch (err) {
@@ -48,7 +50,13 @@ module.exports = {
 
         try {
             const depto = await service.findDepByPk(id);
+
+            if (depto === null) {
+                return res.json({ status: status.error, message: "Departamento não encontrado" })
+            }
+
             await service.updateDep({ departament: depto, param: { ativado: enable } });
+            await cursoService.updateByDep({ id: id, param: { ativado: enable } });
 
             return res.status(200).json({ status: status.ok, message: "Departamento atualizado com sucesso!" });
 
