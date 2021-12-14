@@ -3,16 +3,17 @@ const mailer = require('../config/').mailerConfig;
 
 //Criando conexão SMTP
 const mailConfig = {
-    secureConnection: mailer.hotmail.secureConnection,
-    service: mailer.hotmail.service,
-    auth: {
-        user: mailer.hotmail.auth.user,
-        pass: mailer.hotmail.auth.pass,
-        port: 587
-    },
+    host: mailer.smtp.host,
+    port: mailer.smtp.port,
+    service: mailer.smtp.service, 
+    secure: mailer.smtp.secure,
     tls: {
-        ciphers: mailer.hotmail.tls.ciphers,
-        rejectUnauthorized: mailer.hotmail.tls.rejectUnauthorized
+        ciphers: mailer.smtp.tls.ciphers,
+        rejectUnauthorized: mailer.smtp.tls.rejectUnauthorized
+    },
+    auth: {
+        user: mailer.smtp.auth.user,
+        pass: mailer.smtp.auth.pass,
     }
 };
 
@@ -21,7 +22,7 @@ const transport = nodemailer.createTransport(mailConfig);
 exports.sendEmails = async (email, title, output, { attachments }) => {
 
     let message = {
-        from: mailer.hotmail.auth.user,
+        from: mailer.smtp.auth.user,
         to: email,
         replyTo: process.env.REPLYTO_ADDRESS,
         subject: title,
