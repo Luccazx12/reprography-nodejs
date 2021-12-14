@@ -117,23 +117,27 @@ DB_PASSWORD=
 DB_DATABASE=
 DB_DIALECT=
 
-# Mailer
-#exemplo: hotmail
-MAILER_SERVICE= 
+# Mailer - Conexão
+MAILER_HOST=
+MAILER_PORT=
+# exemplo:hotmail
+MAILER_SERVICE=
 MAILER_USER=
 MAILER_PASS=
-#Email que serão enviadas as solicitações/avaliações de reprografia
-MAILER_COMPANY_EMAIL=
-#Host e porta do front-end que será enviado no e-mail de recuperação de senha 
-#exemplo: http://localhost:3002
-MAILER_HOST_PORT= 
 
-#JWT 
+# Mailer - Outros
+# Email que serão enviadas as solicitações/avaliações de reprografia
+MAILER_COMPANY_EMAIL=
+# Host e porta do front-end que será enviado no e-mail de recuperação de senha 
+# exemplo:http://localhost:3000
+MAILER_HOST_PORT=
+
+# JWT 
 JWT_SECRET_KEY=
 HEADER_KEY=
 SALT_ROUNDS=
 
-#First Account in application
+# First Account in application
 ADMIN_EMAIL=
 ADMIN_PASS=
 ```
