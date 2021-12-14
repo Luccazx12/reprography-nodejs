@@ -110,7 +110,7 @@ This application was requested by the coordinator of the Senai Suiço-Brasileira
 3. The `.env.sample` file is used to configure all the environment variables you need, such as information about your **database**. Change all the information so that the application works properly.
 
 ```bash
-# Data Base
+# DataBase
 DB_HOST=
 DB_PORT=
 DB_USER=
@@ -118,22 +118,26 @@ DB_PASSWORD=
 DB_DATABASE=
 DB_DIALECT=
 
-# Mailer
-#example: hotmail
-MAILER_SERVICE= 
+# Mailer - Connection
+MAILER_HOST=
+MAILER_PORT=
+# exemplo:hotmail
+MAILER_SERVICE=
 MAILER_USER=
 MAILER_PASS=
-#Email that requests / reprography evaluations will be sent
-MAILER_COMPANY_EMAIL=
-#Front-end Host and Port that will be sent in password recovery email
-#exaple: http://localhost:3002
-MAILER_HOST_PORT= 
 
-#JWT 
+# Mailer - Others
+# Email that reprographic requests/evaluations will be sent
+MAILER_COMPANY_EMAIL=
+# Front-end host and port that will be sent in the password recovery email
+# example:http://localhost:3000
+MAILER_HOST_PORT=
+
+# JWT 
 JWT_SECRET_KEY=
 HEADER_KEY=
 
-#First Account in application
+# First Account in application
 ADMIN_EMAIL=
 ADMIN_PASS=
 ```
