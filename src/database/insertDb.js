@@ -26,7 +26,17 @@ exports.InserirRegistros = async () => {
                 descricao: "Não atendeu!"
             }
         ]);
-        await models.departamento.bulkCreate([
+        models.modo_envio.bulkCreate([
+            {
+                id_modo_envio: 1,
+                descricao: "Digital",
+            },
+            {
+                id_modo_envio: 2,
+                descricao: "Físico",
+            },
+        ]);
+        models.departamento.bulkCreate([
             {
                 id_depto: 1,
                 descricao: "Sem departamento",
@@ -40,7 +50,7 @@ exports.InserirRegistros = async () => {
                 valor_unitario: 0
             }
         ])
-        models.tipo_usuario.bulkCreate([
+        await models.tipo_usuario.bulkCreate([
             {
                 id: 1,
                 descricao: "user",
