@@ -2,7 +2,7 @@ module.exports = {
   jwt: {
     secret: process.env.JWT_SECRET_KEY,
     header: process.env.HEADER_KEY,
-    saltRounds: 10
+    saltRounds: process.env.SALT_ROUNDS
   },
   adminAccount: {
     email: process.env.ADMIN_EMAIL,
