@@ -63,34 +63,38 @@ exports.InserirRegistros = async () => {
         await models.departamento.bulkCreate([
             {
                 id_depto: 1,
-                descricao: "Aprendizagem Industrial Presencial",
+                descricao: "Sem departamento",
             },
             {
                 id_depto: 2,
-                descricao: "Técnico de Nível Médio Presencial",
+                descricao: "Aprendizagem Industrial Presencial",
             },
             {
                 id_depto: 3,
-                descricao: "Graduação Tecnológica Presencial",
+                descricao: "Técnico de Nível Médio Presencial",
             },
             {
                 id_depto: 4,
-                descricao: "Pós-Graduação Presencial",
+                descricao: "Graduação Tecnológica Presencial",
             },
             {
                 id_depto: 5,
-                descricao: "Extensão Presencial",
+                descricao: "Pós-Graduação Presencial",
             },
             {
                 id_depto: 6,
-                descricao: "Iniciação Profissional Presencial",
+                descricao: "Extensão Presencial",
             },
             {
                 id_depto: 7,
-                descricao: "Qualificação Profissional Presencial",
+                descricao: "Iniciação Profissional Presencial",
             },
             {
                 id_depto: 8,
+                descricao: "Qualificação Profissional Presencial",
+            },
+            {
+                id_depto: 9,
                 descricao: "Aperfeiç./Especializ. Profis. Presencial",
             },
         ]);
@@ -99,22 +103,22 @@ exports.InserirRegistros = async () => {
             {
                 id_curso: 1,
                 descricao: "CT-DS", //Curso Técnico de Desenvolvimento de Sistemas
-                id_depto: 2
+                id_depto: 3
             },
             {
                 id_curso: 2,
                 descricao: "CT-MP", //Curso Técnico de Mecânica de Precisão
-                id_depto: 2
+                id_depto: 3
             },
             {
                 id_curso: 3,
                 descricao: "CST-MP", //Curso Superior Técnico de Mecânica de Precisão
-                id_depto: 3
+                id_depto: 4
             },
             {
                 id_curso: 4,
                 descricao: "Pós-Graduação", //Pós Graduação
-                id_depto: 4
+                id_depto: 5
             }
         ]);
 
@@ -140,71 +144,70 @@ exports.InserirRegistros = async () => {
         ]);
         models.servicoCopiaTamanho.bulkCreate([
             {
-                id_servicoCA: 1,
+                id_servico: 1,
                 descricao: "Preto&Branco - Tamanho A5",
                 quantidade: 15000,
                 valor_unitario: 0.06
             },
             {
-                id_servicoCA: 2,
+                id_servico: 2,
                 descricao: "Preto&Branco - Tamanho A4",
                 quantidade: 4000000,
                 valor_unitario: 0.024
             },
             {
-                id_servicoCA: 3,
+                id_servico: 3,
                 descricao: "Preto&Branco - Tamanho A3",
                 quantidade: 4000,
                 valor_unitario: 0.15
             },
             {
-                id_servicoCA: 4,
+                id_servico: 4,
                 descricao: "Colorida - Tamanho A4",
                 quantidade: 4000,
                 valor_unitario: 0.1,
                 ativado: 0
             },
             {
-                id_servicoCA: 5,
+                id_servico: 5,
                 descricao: "Preto&Branco - Reduzida",
                 quantidade: 100,
                 valor_unitario: 0.3
             },
             {
-                id_servicoCA: 6,
+                id_servico: 6,
                 descricao: "Preto&Branco - Ampliada",
                 quantidade: 100,
                 valor_unitario: 0.3
             },
         ]);
         await models.servicoCapaAcabamento.bulkCreate([
-
             {
-                id_servicoCT: 1,
+                id_servico: 1,
                 descricao: "Capa em papel 150g e 2 grampos laterais",
                 quantidade: 4000,
                 valor_unitario: 0.07
             },
             {
-                id_servicoCT: 2,
+                id_servico: 2,
                 descricao: "Capa em papel 150g e 2 grampos a cavalo",
                 quantidade: 1000,
                 valor_unitario: 0.05
             },
             {
-                id_servicoCT: 3,
+                id_servico: 3,
                 descricao: "Capa em papel 150g e espirais de plástico",
                 quantidade: 100,
                 valor_unitario: 0.5
             },
             {
-                id_servicoCT: 4,
+                id_servico: 4,
                 descricao: "Capa em PVC e espirais de plástico",
                 quantidade: 30000,
                 valor_unitario: 0.45
             },
             {
-                id_servicoCT: 5,
+                id_servico: 5,
                 descricao: "Sem capa",
                 quantidade: 9999999,
                 valor_unitario: 0
