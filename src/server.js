@@ -1,9 +1,6 @@
 // Utilizando express
 const app = require('./app');
 
-const { spawn } = require('child_process');
-const child = spawn('dir', [], {shell: true});
-
 // Imports para as informações que vamos trazer no console (consumo de ram, uso de cpu...)
 const os = require("os");
 const utils = require("os-utils");
