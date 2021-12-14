@@ -140,38 +140,38 @@ exports.InserirRegistros = async () => {
         ]);
         models.servicoCopiaTamanho.bulkCreate([
             {
-                id_servicoCA: 1,
+                id_servico: 1,
                 descricao: "Preto&Branco - Tamanho A5",
                 quantidade: 15000,
                 valor_unitario: 0.06
             },
             {
-                id_servicoCA: 2,
+                id_servico: 2,
                 descricao: "Preto&Branco - Tamanho A4",
                 quantidade: 4000000,
                 valor_unitario: 0.024
             },
             {
-                id_servicoCA: 3,
+                id_servico: 3,
                 descricao: "Preto&Branco - Tamanho A3",
                 quantidade: 4000,
                 valor_unitario: 0.15
             },
             {
-                id_servicoCA: 4,
+                id_servico: 4,
                 descricao: "Colorida - Tamanho A4",
                 quantidade: 4000,
                 valor_unitario: 0.1,
                 ativado: 0
             },
             {
-                id_servicoCA: 5,
+                id_servico: 5,
                 descricao: "Preto&Branco - Reduzida",
                 quantidade: 100,
                 valor_unitario: 0.3
             },
             {
-                id_servicoCA: 6,
+                id_servico: 6,
                 descricao: "Preto&Branco - Ampliada",
                 quantidade: 100,
                 valor_unitario: 0.3
@@ -180,31 +180,31 @@ exports.InserirRegistros = async () => {
         await models.servicoCapaAcabamento.bulkCreate([
 
             {
-                id_servicoCT: 1,
+                id_servico: 1,
                 descricao: "Capa em papel 150g e 2 grampos laterais",
                 quantidade: 4000,
                 valor_unitario: 0.07
             },
             {
-                id_servicoCT: 2,
+                id_servico: 2,
                 descricao: "Capa em papel 150g e 2 grampos a cavalo",
                 quantidade: 1000,
                 valor_unitario: 0.05
             },
             {
-                id_servicoCT: 3,
+                id_servico: 3,
                 descricao: "Capa em papel 150g e espirais de plástico",
                 quantidade: 100,
                 valor_unitario: 0.5
             },
             {
-                id_servicoCT: 4,
+                id_servico: 4,
                 descricao: "Capa em PVC e espirais de plástico",
                 quantidade: 30000,
                 valor_unitario: 0.45
             },
             {
-                id_servicoCT: 5,
+                id_servico: 5,
                 descricao: "Sem capa",
                 quantidade: 9999999,
                 valor_unitario: 0
