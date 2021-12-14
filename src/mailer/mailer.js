@@ -5,7 +5,7 @@ const mailer = require('../config/').mailerConfig;
 const mailConfig = {
     host: mailer.smtp.host,
     port: mailer.smtp.port,
-    service: mailer.smtp.service, 
+    service: mailer.smtp.service,
     secure: mailer.smtp.secure,
     tls: {
         ciphers: mailer.smtp.tls.ciphers,
