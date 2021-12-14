@@ -127,10 +127,10 @@ MAILER_USER=
 MAILER_PASS=
 
 # Mailer - Others
-# Email que serão enviadas as solicitações/avaliações de reprografia
+# Email that reprographic requests/evaluations will be sent
 MAILER_COMPANY_EMAIL=
-# Host e porta do front-end que será enviado no e-mail de recuperação de senha 
-# exemplo:http://localhost:3000
+# Front-end host and port that will be sent in the password recovery email
+# example:http://localhost:3000
 MAILER_HOST_PORT=
 
 # JWT 
@@ -138,7 +138,7 @@ JWT_SECRET_KEY=
 HEADER_KEY=
 SALT_ROUNDS=
 
-#First Account in application
+# First Account in application
 ADMIN_EMAIL=
 ADMIN_PASS=
 ```
