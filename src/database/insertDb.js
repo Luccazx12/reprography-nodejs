@@ -63,34 +63,38 @@ exports.InserirRegistros = async () => {
         await models.departamento.bulkCreate([
             {
                 id_depto: 1,
-                descricao: "Aprendizagem Industrial Presencial",
+                descricao: "Sem departamento",
             },
             {
                 id_depto: 2,
-                descricao: "Técnico de Nível Médio Presencial",
+                descricao: "Aprendizagem Industrial Presencial",
             },
             {
                 id_depto: 3,
-                descricao: "Graduação Tecnológica Presencial",
+                descricao: "Técnico de Nível Médio Presencial",
             },
             {
                 id_depto: 4,
-                descricao: "Pós-Graduação Presencial",
+                descricao: "Graduação Tecnológica Presencial",
             },
             {
                 id_depto: 5,
-                descricao: "Extensão Presencial",
+                descricao: "Pós-Graduação Presencial",
             },
             {
                 id_depto: 6,
-                descricao: "Iniciação Profissional Presencial",
+                descricao: "Extensão Presencial",
             },
             {
                 id_depto: 7,
-                descricao: "Qualificação Profissional Presencial",
+                descricao: "Iniciação Profissional Presencial",
             },
             {
                 id_depto: 8,
+                descricao: "Qualificação Profissional Presencial",
+            },
+            {
+                id_depto: 9,
                 descricao: "Aperfeiç./Especializ. Profis. Presencial",
             },
         ]);
@@ -99,22 +103,22 @@ exports.InserirRegistros = async () => {
             {
                 id_curso: 1,
                 descricao: "CT-DS", //Curso Técnico de Desenvolvimento de Sistemas
-                id_depto: 2
+                id_depto: 3
             },
             {
                 id_curso: 2,
                 descricao: "CT-MP", //Curso Técnico de Mecânica de Precisão
-                id_depto: 2
+                id_depto: 3
             },
             {
                 id_curso: 3,
                 descricao: "CST-MP", //Curso Superior Técnico de Mecânica de Precisão
-                id_depto: 3
+                id_depto: 4
             },
             {
                 id_curso: 4,
                 descricao: "Pós-Graduação", //Pós Graduação
-                id_depto: 4
+                id_depto: 5
             }
         ]);
 
@@ -178,7 +182,6 @@ exports.InserirRegistros = async () => {
             },
         ]);
         await models.servicoCapaAcabamento.bulkCreate([
-
             {
                 id_servico: 1,
                 descricao: "Capa em papel 150g e 2 grampos laterais",
