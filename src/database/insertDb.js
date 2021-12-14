@@ -32,6 +32,14 @@ exports.InserirRegistros = async () => {
                 descricao: "Sem departamento",
             },
         ]);
+        models.servicoCapaAcabamento.bulkCreate([
+            {
+                id_servico: 1,
+                descricao: "Sem capa",
+                quantidade: 999999999,
+                valor_unitario: 0
+            }
+        ])
         models.tipo_usuario.bulkCreate([
             {
                 id: 1,
@@ -52,7 +60,7 @@ exports.InserirUsuario = async () => {
     try {
         const password = await bcrypt.hash(
             config.authConfig.adminAccount.pass, config.authConfig.jwt.saltRounds
-            );
+        );
         const user = await models.usuario.create({
             nif: 1,
             senha: password,
