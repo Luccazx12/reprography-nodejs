@@ -13,7 +13,7 @@ const mailConfig = {
     },
     auth: {
         user: mailer.smtp.auth.user,
-        pass: mailer.smtp.auth.pass,
+        pass: mailer.smtp.auth.pass
     }
 };
 
